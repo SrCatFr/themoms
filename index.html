@@ -4,59 +4,35 @@
     <meta charset="UTF-8">
     <title>The Moms - Ultimate Edition</title>
     <link rel="stylesheet" href="/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="game-container">
-        <div class="stats-panel">
-            <h1 class="game-title">The Moms</h1>
-            <div class="stats-grid">
-                <div class="stat-box weight">
-                    <span class="stat-label">Peso</span>
-                    <span id="current-weight">0</span> kg
-                </div>
-                <div class="stat-box level">
-                    <span class="stat-label">Nivel</span>
-                    <span id="current-level">1</span>
-                </div>
-                <div class="stat-box clicks">
-                    <span class="stat-label">Clicks</span>
-                    <span id="total-clicks">0</span>
-                </div>
-            </div>
-        </div>
+    <div id="login-screen" class="screen">
+        <h2>Ingresa tu nombre</h2>
+        <input type="text" id="player-name" placeholder="Nombre">
+        <button onclick="startGame()">Empezar</button>
+    </div>
 
-        <div class="game-scene">
-            <div class="background-scene"></div>
-            <div class="mom-container">
-                <div class="mom-wrapper">
+    <div id="game-screen" class="screen" style="display:none">
+        <div class="game-container">
+            <div class="stats">
+                <h1>The Moms</h1>
+                <div class="weight">Peso actual: <span id="current-weight">0</span> kg</div>
+                <div class="level">Nivel: <span id="current-level">1</span></div>
+                <div class="player">Jugador: <span id="player-display"></span></div>
+            </div>
+            
+            <div class="game-area">
+                <div class="mom-container">
                     <img id="mom-image" src="/images/moms/carlos-mom.png" alt="Mom">
                 </div>
-            </div>
-            <div class="food-container">
-                <div class="food-wrapper">
+                <div class="food-container">
                     <img id="food-button" src="/images/food/level1-food.png" alt="Food">
                 </div>
             </div>
-        </div>
 
-        <div class="upgrades-panel">
-            <h2>Mejoras Disponibles</h2>
-            <div class="upgrades-grid">
-                <button id="multiplier-upgrade" class="upgrade-button">
-                    <span class="upgrade-icon">🍔</span>
-                    <span class="upgrade-text">
-                        Mejorar porción
-                        <small>Costo: 100 clicks</small>
-                    </span>
-                </button>
-                <button id="auto-feeder" class="upgrade-button">
-                    <span class="upgrade-icon">🤖</span>
-                    <span class="upgrade-text">
-                        Alimentador automático
-                        <small>Costo: 500 clicks</small>
-                    </span>
-                </button>
+            <div class="leaderboard">
+                <h2>Top 10 Pesos</h2>
+                <div id="leaderboard-list"></div>
             </div>
         </div>
     </div>
