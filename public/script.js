@@ -1,4 +1,5 @@
-// Game State
+let playerName = '';
+
 const gameState = {
     clicks: 0,
     weight: 0,
@@ -14,126 +15,110 @@ const gameState = {
     ]
 };
 
-// Particle Effect System
-function createFoodParticles(x, y) {
-    const particleCount = 5;
-    const foodEmojis = ['🍔', '🍕', '🌭', '🍟', '🍗'];
+// Función para iniciar el juego
+function startGame() {
+    playerName = document.getElementById('player-name').value.trim();
+    if (!playerName) {
+        alert('Por favor ingresa un nombre');
+        return;
+    }
+    
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'block';
+    document.getElementById('player-display').textContent = playerName;
+    
+    // Cargar progreso guardado
+    loadProgress();
+    // Iniciar actualización automática del leaderboard
+    updateLeaderboard();
+    setInterval(updateLeaderboard, 10000);
+}
 
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'food-particle';
-        particle.textContent = foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
-        particle.style.left = x + 'px';
-        particle.style.top = y + 'px';
-        particle.style.setProperty('--x', (Math.random() - 0.5) * 200 + 'px');
-        particle.style.setProperty('--y', (Math.random() - 0.5) * 200 + 'px');
-        document.body.appendChild(particle);
-
-        setTimeout(() => particle.remove(), 1000);
+// Función para actualizar el leaderboard
+async function updateLeaderboard() {
+    try {
+        const response = await fetch('/api/leaderboard');
+        const leaders = await response.json();
+        
+        const leaderboardHtml = leaders.map((player, index) => `
+            <div class="leader-entry">
+                ${index + 1}. ${player.name}: ${player.weight.toFixed(1)} kg
+            </div>
+        `).join('');
+        
+        document.getElementById('leaderboard-list').innerHTML = leaderboardHtml;
+    } catch (error) {
+        console.error('Error al actualizar leaderboard:', error);
     }
 }
 
-// Feeding Animation
-function animateFeeding() {
-    const foodElem = document.querySelector('.food-wrapper');
-    const momElem = document.querySelector('.mom-wrapper');
-
-    foodElem.classList.add('feeding');
-    setTimeout(() => {
-        momElem.classList.add('eating');
-        setTimeout(() => {
-            foodElem.classList.remove('feeding');
-            momElem.classList.remove('eating');
-        }, 1000);
-    }, 500);
+// Función para guardar progreso
+async function saveProgress() {
+    try {
+        await fetch('/api/save', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: playerName,
+                weight: gameState.weight,
+                level: gameState.level
+            })
+        });
+    } catch (error) {
+        console.error('Error al guardar progreso:', error);
+    }
 }
 
-// Update Display
+// Función para cargar progreso
+async function loadProgress() {
+    try {
+        const response = await fetch('/api/leaderboard');
+        const leaders = await response.json();
+        const playerProgress = leaders.find(p => p.name === playerName);
+        
+        if (playerProgress) {
+            gameState.weight = playerProgress.weight;
+            gameState.level = playerProgress.level;
+            updateDisplay();
+            document.getElementById('mom-image').src = `/images/moms/${getMomImage()}`;
+            document.getElementById('food-button').src = `/images/food/level${gameState.level}-food.png`;
+        }
+    } catch (error) {
+        console.error('Error al cargar progreso:', error);
+    }
+}
+
 function updateDisplay() {
     document.getElementById('current-weight').textContent = gameState.weight.toFixed(1);
     document.getElementById('current-level').textContent = gameState.level;
-    document.getElementById('total-clicks').textContent = gameState.clicks;
+    saveProgress(); // Guardar progreso cada vez que se actualiza
 }
 
-// Check Level Up
+function feed() {
+    if (!playerName) return;
+    
+    const currentLevel = gameState.levels[gameState.level - 1];
+    gameState.weight += currentLevel.foodPerClick * gameState.clickMultiplier;
+    updateDisplay();
+    checkLevelUp();
+}
+
 function checkLevelUp() {
     const currentLevel = gameState.levels[gameState.level - 1];
     if (gameState.weight >= currentLevel.maxWeight && gameState.level < gameState.levels.length) {
         gameState.level++;
-
-        document.querySelector('.stats-panel').classList.add('level-up');
-        setTimeout(() => {
-            document.querySelector('.stats-panel').classList.remove('level-up');
-        }, 1000);
-
         alert(`¡Nivel completado! Avanzando al nivel ${gameState.level}`);
-
         document.getElementById('mom-image').src = `/images/moms/${getMomImage()}`;
         document.getElementById('food-button').src = `/images/food/level${gameState.level}-food.png`;
     }
 }
 
-// Get Mom Image
 function getMomImage() {
     const moms = ['carlos-mom.png', 'edvine-mom.png', 'isaac-mom.png', 'klakzon-mom.png', 'bruno-mom.png'];
     return moms[gameState.level - 1];
 }
 
-// Feed Function
-function feed(event) {
-    gameState.clicks++;
-    const currentLevel = gameState.levels[gameState.level - 1];
-    gameState.weight += currentLevel.foodPerClick * gameState.clickMultiplier;
-
-    if (event) {
-        const rect = event.target.getBoundingClientRect();
-        createFoodParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
-        animateFeeding();
-    }
-
-    updateDisplay();
-    checkLevelUp();
-}
-
 // Event Listeners
 document.getElementById('food-button').addEventListener('click', feed);
-
-// Multiplier Upgrade
-document.getElementById('multiplier-upgrade').addEventListener('click', () => {
-    if (gameState.clicks >= 100) {
-        gameState.clicks -= 100;
-        gameState.clickMultiplier *= 1.5;
-        alert(`¡Multiplicador mejorado! Ahora es ${gameState.clickMultiplier.toFixed(1)}x`);
-        updateDisplay();
-    }
-});
-
-// Auto Feeder
-document.getElementById('auto-feeder').addEventListener('click', () => {
-    if (gameState.clicks >= 500 && !gameState.autoFeederInterval) {
-        gameState.clicks -= 500;
-        gameState.autoFeederInterval = setInterval(() => feed(), 1000);
-        document.getElementById('auto-feeder').disabled = true;
-        alert('¡Alimentador automático activado!');
-        updateDisplay();
-    }
-});
-
-// Save Progress
-setInterval(() => {
-    localStorage.setItem('theMomsGameState', JSON.stringify(gameState));
-}, 5000);
-
-// Load Saved Progress
-const savedState = localStorage.getItem('theMomsGameState');
-if (savedState) {
-    Object.assign(gameState, JSON.parse(savedState));
-    updateDisplay();
-    document.getElementById('mom-image').src = `/images/moms/${getMomImage()}`;
-    document.getElementById('food-button').src = `/images/food/level${gameState.level}-food.png`;
-
-    if (gameState.autoFeederInterval) {
-        gameState.autoFeederInterval = setInterval(() => feed(), 1000);
-        document.getElementById('auto-feeder').disabled = true;
-    }
-}
