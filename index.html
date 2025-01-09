@@ -4,35 +4,55 @@
     <meta charset="UTF-8">
     <title>The Moms - Ultimate Edition</title>
     <link rel="stylesheet" href="/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="login-screen" class="screen">
-        <h2>Ingresa tu nombre</h2>
-        <input type="text" id="player-name" placeholder="Nombre">
-        <button onclick="startGame()">Empezar</button>
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <h1>The Moms</h1>
+            <div class="login-box">
+                <h2>Ingresa tu nombre</h2>
+                <input type="text" id="player-name" placeholder="Tu nombre aquí..." maxlength="15">
+                <button class="start-button" onclick="startGame()">¡EMPEZAR!</button>
+            </div>
+        </div>
     </div>
 
-    <div id="game-screen" class="screen" style="display:none">
+    <div id="game-screen" class="game-screen" style="display:none">
         <div class="game-container">
-            <div class="stats">
-                <h1>The Moms</h1>
-                <div class="weight">Peso actual: <span id="current-weight">0</span> kg</div>
-                <div class="level">Nivel: <span id="current-level">1</span></div>
-                <div class="player">Jugador: <span id="player-display"></span></div>
+            <div class="game-header">
+                <div class="stats-panel">
+                    <div class="stat-box">
+                        <span class="stat-label">Peso</span>
+                        <span id="current-weight">0</span> kg
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Nivel</span>
+                        <span id="current-level">1</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Jugador</span>
+                        <span id="player-display"></span>
+                    </div>
+                </div>
             </div>
             
-            <div class="game-area">
-                <div class="mom-container">
-                    <img id="mom-image" src="/images/moms/carlos-mom.png" alt="Mom">
+            <div class="game-content">
+                <div class="game-area">
+                    <div class="mom-container">
+                        <img id="mom-image" src="/images/moms/carlos-mom.png" alt="Mom">
+                    </div>
+                    <div class="food-container">
+                        <img id="food-button" src="/images/food/level1-food.png" alt="Food">
+                    </div>
                 </div>
-                <div class="food-container">
-                    <img id="food-button" src="/images/food/level1-food.png" alt="Food">
-                </div>
-            </div>
 
-            <div class="leaderboard">
-                <h2>Top 10 Pesos</h2>
-                <div id="leaderboard-list"></div>
+                <div class="leaderboard-container">
+                    <div class="leaderboard">
+                        <h2>🏆 TOP 10 PESOS 🏆</h2>
+                        <div id="leaderboard-list"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
