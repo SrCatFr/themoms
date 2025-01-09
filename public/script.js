@@ -34,15 +34,15 @@ function startGame() {
     setInterval(updateLeaderboard, 10000);
 }
 
-// Función para actualizar el leaderboard
 async function updateLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
         const leaders = await response.json();
         
         const leaderboardHtml = leaders.map((player, index) => `
-            <div class="leader-entry">
-                ${index + 1}. ${player.name}: ${player.weight.toFixed(1)} kg
+            <div class="leader-entry" style="animation-delay: ${index * 0.1}s">
+                <strong>${index + 1}.</strong> ${player.name}
+                <span style="float: right">${player.weight.toFixed(1)} kg</span>
             </div>
         `).join('');
         
@@ -51,6 +51,7 @@ async function updateLeaderboard() {
         console.error('Error al actualizar leaderboard:', error);
     }
 }
+
 
 // Función para guardar progreso
 async function saveProgress() {
